@@ -12,23 +12,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-
 @Service
 public class RegistrationService {
+
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private OtpService otpService;
+
     public RegisterResponseDto doRegister(RegisterRequestDto registerRequest) {
+
         User user = User.builder()
                 .name(registerRequest.getName())
                 .email(registerRequest.getEmail())
                 .password(registerRequest.getPassword())
                 .build();
+
         userRepository.save(user);
+
+        String otpSessionId = otpService.generateAndSendOtp(
+                registerRequest.getEmail(),
+                OtpType.OTP_TYPE_REGISTER
+        );
+
         return RegisterResponseDto.builder()
                 .type(OtpType.OTP_TYPE_REGISTER)
-                .expireIn(System.currentTimeMillis())
-                .tempSessionId(UUID.randomUUID())
+                .expireIn(System.currentTimeMillis() + (5 * 60 * 1000))
+                .tempSessionId(UUID.fromString(otpSessionId))
                 .build();
     }
 }

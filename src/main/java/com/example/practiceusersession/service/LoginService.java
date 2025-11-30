@@ -9,24 +9,42 @@ import com.example.practiceusersession.respository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class LoginService {
+
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private OtpService otpService;
+
     public LoginResponseDto doLogin(LoginRequestDto loginRequest) throws LoginWrongCredentialsException {
+
         Optional<User> optionalUser = userRepository.findByEmailAndPassword(
                 loginRequest.getEmail(), loginRequest.getPassword());
-        if (optionalUser.isPresent()){
-            return LoginResponseDto.builder().type(OtpType.OTP_TYPE_2FA)
-                    .expireIn(System.currentTimeMillis())
-                    .tempSessionId(UUID.randomUUID())
-                    .build();
+
+        if (optionalUser.isEmpty()) {
+            throw new LoginWrongCredentialsException(
+                    "You've entered wrong email or password, please verify and try again");
         }
-        throw new LoginWrongCredentialsException("You've entered wrong email or password, please verify and try again");
+
+        User user = optionalUser.get();
+
+        // ⬅ Generate OTP + Save in DB + Send email
+        String otpSessionId = otpService.generateAndSendOtp(
+                user.getEmail(),
+                OtpType.OTP_TYPE_2FA
+        );
+
+        long expiry = System.currentTimeMillis() + (5 * 60 * 1000); // 5 min
+
+        return LoginResponseDto.builder()
+                .type(OtpType.OTP_TYPE_2FA)
+                .expireIn(expiry)
+                .tempSessionId(UUID.fromString(otpSessionId))
+                .build();
     }
 }

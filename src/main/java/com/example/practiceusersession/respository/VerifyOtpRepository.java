@@ -17,5 +17,7 @@ public interface VerifyOtpRepository extends JpaRepository<VerifyOtp, Long> {
     List<VerifyOtp> findInvalidOtpsByEmail(@Param("email") String email, @Param("type") OtpType type);
 
     Optional<VerifyOtp> findByOtpSessionId(String otpSessionId);
+    Optional<VerifyOtp> findByEmailAndOtp(String email, String otp);
+
 
 }

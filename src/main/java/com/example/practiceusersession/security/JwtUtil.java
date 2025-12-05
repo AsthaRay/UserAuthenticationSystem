@@ -10,7 +10,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET_KEY = "MySuperSecretKey12345"; // Keep it safe, can move to application.properties
+    private final String SECRET_KEY = "7lZ+Uu8K2F4ex3kbl1nG3m4dCy1H4u8y6uXo0YQKjZc="; // Keep it safe, can move to application.properties
 
     // Generate JWT token
     public String generateToken(String email) {

@@ -1,6 +1,8 @@
 package com.example.practiceusersession.respository;
 
+
 import com.example.practiceusersession.model.User;
+import com.example.practiceusersession.model.UserPrincipal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

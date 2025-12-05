@@ -13,5 +13,6 @@ public class RegisterRequestDto {
     String name;
     String email;
     String password;
+    String role;
 
 }

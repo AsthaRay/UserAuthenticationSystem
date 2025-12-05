@@ -82,4 +82,27 @@ public class GlobalExceptionHandler {
         return response;
     }
 
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<GenericResponseDto<Object>> handleEmailAlreadyExistsException(EmailAlreadyExistsException exception) {
+        ResponseEntity<GenericResponseDto<Object>> response = new ResponseEntity<>(
+                GenericResponseDto.builder()
+                        .error(true)
+                        .message(exception.getMessage())
+                        .build(),
+                HttpStatus.BAD_REQUEST
+        );
+        return response;
+    }
+
+    @ExceptionHandler(InvalidRoleException.class)
+    public ResponseEntity<GenericResponseDto<Object>> handleInvalidRoleException(InvalidRoleException exception) {
+        ResponseEntity<GenericResponseDto<Object>> response = new ResponseEntity<>(
+                GenericResponseDto.builder()
+                        .error(true)
+                        .message(exception.getMessage())
+                        .build(),
+                HttpStatus.BAD_REQUEST
+        );
+        return response;
+    }
 }

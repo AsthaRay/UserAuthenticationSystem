@@ -75,13 +75,13 @@ public class VerifyOtpService {
     }
 
     // Updated verifyOtp to return JWT token
-    public String verifyOtp(VerifyOtpRequestDto requestDto)
+  /*  public String verifyOtp(VerifyOtpRequestDto requestDto)
             throws OtpExpiredException,
             OtpAlreadyBeenUsedException,
             WrongOtpException,
             InvalidOtpVerificationException {
 
-        Optional<VerifyOtp> optionalFetchedOtp = verifyOtpRepository.findByOtpSessionId(requestDto.getOtpSessionId());
+        Optional<VerifyOtp> optionalFetchedOtp = verifyOtpRepository.findByOtpSessionId(requestDto.getOtp());
         if(optionalFetchedOtp.isEmpty()){
             throw new InvalidOtpVerificationException("Invalid OTP verification request, please try resending the OTP!");
         }
@@ -108,5 +108,42 @@ public class VerifyOtpService {
                 .orElseThrow(() -> new InvalidOtpVerificationException("User not found!"));
 
         return jwtUtil.generateToken(user.getEmail());  // returns JWT token
+    }*/
+    public String verifyOtp(VerifyOtpRequestDto requestDto)
+            throws OtpExpiredException,
+            OtpAlreadyBeenUsedException,
+            WrongOtpException {
+
+        // 1. Fetch OTP using email + otp
+        Optional<VerifyOtp> optionalFetchedOtp =
+                verifyOtpRepository.findByEmailAndOtp(requestDto.getEmail(), requestDto.getOtp());
+
+        if (optionalFetchedOtp.isEmpty()) {
+            throw new WrongOtpException("You entered wrong OTP, please try again");
+        }
+
+        VerifyOtp fetchedOtp = optionalFetchedOtp.get();
+
+        // 2. Check expiry
+        if (fetchedOtp.getIsExpired() || fetchedOtp.getExpireIn() <= System.currentTimeMillis()) {
+            throw new OtpExpiredException("Your OTP has expired, please try resending the OTP!");
+        }
+
+        // 3. Check if already used
+        if (fetchedOtp.getIsUsed()) {
+            throw new OtpAlreadyBeenUsedException("Given OTP has already been used, please try resending the OTP!");
+        }
+
+        // 4. Mark OTP used
+        fetchedOtp.setIsUsed(true);
+        verifyOtpRepository.save(fetchedOtp);
+
+        // 5. Fetch user to generate JWT
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElseThrow(() -> new WrongOtpException("User not found!"));
+
+        // 6. Generate JWT token
+        return jwtUtil.generateToken(user.getEmail());
     }
+
 }

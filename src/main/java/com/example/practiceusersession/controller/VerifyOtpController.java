@@ -1,6 +1,7 @@
 package com.example.practiceusersession.controller;
 
 import com.example.practiceusersession.dto.*;
+import com.example.practiceusersession.service.OtpService;
 import com.example.practiceusersession.service.VerifyOtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ public class VerifyOtpController {
 
     @Autowired
     private VerifyOtpService otpService;
+
 
     @PostMapping("/resendOtp")
     public ResponseEntity<GenericResponseDto<ResendOtpResponseDto>> resendOtp(
